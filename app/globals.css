@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-cream text-slate-800 antialiased;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold px-6 py-3 rounded-2xl 
+           shadow-clay hover:shadow-clay-lg hover:from-amber-500 hover:to-orange-600 
+           transform hover:-translate-y-0.5 active:scale-95 transition-all duration-200;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-slate-700 font-bold px-6 py-3 rounded-2xl border-2 border-slate-100
+           hover:border-amber-300 hover:text-amber-600 hover:shadow-lg 
+           transform hover:-translate-y-0.5 transition-all duration-200;
+  }
+  
+  .card-clay {
+    @apply bg-white rounded-3xl shadow-xl border-4 border-white overflow-hidden
+           transform transition-all duration-300 hover:scale-[1.02];
+  }
+  
+  .input-clay {
+    @apply w-full px-6 py-4 rounded-2xl bg-amber-50 border-2 border-transparent
+           focus:bg-white focus:border-amber-200 focus:ring-4 focus:ring-amber-100
+           transition-all outline-none text-slate-700 placeholder:text-slate-400 font-medium;
+  }
+  
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-bold;
+  }
+  
+  .badge-amber {
+    @apply badge bg-amber-100 text-amber-600;
+  }
+  
+  .badge-rose {
+    @apply badge bg-rose-100 text-rose-600;
+  }
+  
+  .badge-sky {
+    @apply badge bg-sky-100 text-sky-600;
+  }
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r;
+  }
+  
+  .glass {
+    @apply bg-white/80 backdrop-blur-md;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-amber-50 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-amber-200 rounded-full hover:bg-amber-300;
+}
+
+/* Loading spinner */
+.spinner {
+  @apply w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin;
+}
