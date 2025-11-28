@@ -43,68 +43,59 @@ export default function Home() {
     loadImages()
   }, [isLoaded, isSignedIn])
 
-  const handleGenerate = useCallback(async (theme: string, style: string = 'claymation') => {
-    setError(null)
-    setAppState(AppState.BRAINSTORMING)
+  const pollJobStatus = useCallback(async (jobId: string) => {
+    let attempts = 0
+    const maxAttempts = 120 // 最多轮询 2 分钟（每 1 秒轮询一次）
 
-    try {
-      const response = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme, style }),
-      })
-
-      setAppState(AppState.GENERATING)
-
-      let data
+    const poll = async () => {
       try {
-        data = await response.json()
-      } catch (e) {
-        throw new Error(`API 响应错误: ${response.status}`)
-      }
+        const response = await fetch(`/api/generate/status?jobId=${jobId}`)
+        const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data?.error || `生成失败 (${response.status})`)
-      }
-
-      // 保存到数据库
-      console.log('准备保存图片到数据库:', { url: data.imageUrl?.substring(0, 50), theme })
-      const saveResponse = await fetch('/api/images', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          url: data.imageUrl,
-          prompt: data.prompt,
-          theme,
-          style,
-        }),
-      })
-
-      console.log('保存响应状态:', saveResponse.status)
-      
-      if (saveResponse.ok) {
-        const savedImage = await saveResponse.json()
-        console.log('图片已保存:', savedImage.id)
-        const newImage: GeneratedImage = {
-          id: savedImage.id,
-          url: savedImage.url,
-          prompt: savedImage.prompt,
-          theme: savedImage.theme,
-          timestamp: savedImage.timestamp,
+        if (!response.ok) {
+          throw new Error(data?.error || '查询失败')
         }
-        setImages((prev) => [newImage, ...prev])
-      } else {
-        const errorData = await saveResponse.json()
-        console.error('保存失败:', saveResponse.status, errorData)
-      }
 
-      setAppState(AppState.SUCCESS)
-    } catch (err: any) {
-      console.error(err)
-      setError(err.message || '生成失败，请稍后重试')
-      setAppState(AppState.ERROR)
+        console.log('任务状态:', data.status)
+
+        if (data.status === 'completed') {
+          // 任务完成，添加到图片列表
+          const newImage: GeneratedImage = {
+            id: jobId,
+            url: data.imageUrl,
+            prompt: '',
+            theme: data.theme,
+            timestamp: Date.now(),
+          }
+          setImages((prev) => [newImage, ...prev])
+          setAppState(AppState.SUCCESS)
+          return true
+        } else if (data.status === 'failed') {
+          throw new Error(data.error || '生成失败')
+        }
+
+        // 继续轮询
+        attempts++
+        if (attempts < maxAttempts) {
+          setTimeout(poll, 1000) // 每 1 秒轮询一次
+        } else {
+          throw new Error('任务超时')
+        }
+      } catch (err: any) {
+        console.error('轮询失败:', err)
+        setError(err.message || '生成失败，请稍后重试')
+        setAppState(AppState.ERROR)
+      }
     }
+
+    setAppState(AppState.BRAINSTORMING)
+    poll()
   }, [])
+
+  const handleJobCreated = useCallback((jobId: string) => {
+    console.log('任务已创建:', jobId)
+    pollJobStatus(jobId)
+  }, [pollJobStatus])
 
   const handleAvatarMerge = useCallback(async (formData: FormData) => {
     setError(null)
@@ -162,7 +153,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* 生成表单 */}
-        <GeneratorForm onGenerate={handleGenerate} appState={appState} />
+        <GeneratorForm onGenerate={handleGenerate} appState={appState} onJobCreated={handleJobCreated} />
 
         {/* Error Toast */}
         <AnimatePresence>

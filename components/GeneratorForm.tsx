@@ -11,13 +11,15 @@ import { AppState } from '@/lib/types'
 interface GeneratorFormProps {
   onGenerate: (theme: string, style: string) => Promise<void>
   appState: AppState
+  onJobCreated?: (jobId: string) => void
 }
 
-export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
+export function GeneratorForm({ onGenerate, appState, onJobCreated }: GeneratorFormProps) {
   const [theme, setTheme] = useState('')
   const [style, setStyle] = useState<'claymation' | 'realistic' | 'pixar'>('claymation')
   const [progress, setProgress] = useState(0)
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [jobId, setJobId] = useState<string | null>(null)
   const isLoading = appState === AppState.BRAINSTORMING || appState === AppState.GENERATING
 
   // Get current placeholders based on style
@@ -64,8 +66,29 @@ export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!theme.trim() || isLoading) return
-    await onGenerate(theme, style)
-    setTheme('')
+    
+    try {
+      // 调用新的生成 API
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme, style }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data?.error || '创建任务失败')
+      }
+
+      // 保存 jobId 用于轮询
+      setJobId(data.jobId)
+      onJobCreated?.(data.jobId)
+      setTheme('')
+    } catch (error: any) {
+      console.error('提交失败:', error)
+      alert('提交失败: ' + (error instanceof Error ? error.message : '未知错误'))
+    }
   }
 
   return (
