@@ -81,16 +81,9 @@ export async function getImageFromR2(key: string): Promise<Buffer> {
       throw new Error('无法读取图片')
     }
 
-    const chunks: Uint8Array[] = []
-    const reader = response.Body.getReader()
-
-    let result = await reader.read()
-    while (!result.done) {
-      chunks.push(result.value)
-      result = await reader.read()
-    }
-
-    return Buffer.concat(chunks)
+    // 使用 AWS SDK 的 blob() 方法
+    const blob = await response.Body.transformToByteArray()
+    return Buffer.from(blob)
   } catch (error) {
     console.error('R2 读取失败:', error)
     throw new Error('图片读取失败')

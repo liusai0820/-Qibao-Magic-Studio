@@ -31,3 +31,19 @@ model Image {
   @@index([userId])
   @@index([createdAt])
 }
+
+model GenerationJob {
+  id        String   @id @default(cuid())
+  userId    String
+  theme     String
+  style     String
+  status    String   @default("pending") // pending, processing, completed, failed
+  imageUrl  String?
+  error     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+}
