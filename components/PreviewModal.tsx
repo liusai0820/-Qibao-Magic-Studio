@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { GeneratedImage } from '@/lib/types'
@@ -8,11 +9,23 @@ interface PreviewModalProps {
   isOpen: boolean
   onClose: () => void
   image: GeneratedImage | null
-  onDownload: (imageUrl: string, id: string) => void
-  onEdit: (image: GeneratedImage) => void
 }
 
 export function PreviewModal({ isOpen, onClose, image }: PreviewModalProps) {
+  // 处理 ESC 键关闭
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
   if (!image) return null
 
   return (

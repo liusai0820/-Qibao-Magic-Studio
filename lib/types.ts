@@ -20,7 +20,7 @@ export enum AppState {
   ERROR = 'ERROR',
 }
 
-export type StyleType = 'claymation' | 'realistic'
+export type StyleType = 'claymation' | 'realistic' | 'pixar'
 
 export interface GenerateRequest {
   theme: string

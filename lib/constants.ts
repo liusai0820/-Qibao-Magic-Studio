@@ -1,3 +1,27 @@
+export const STYLE_PLACEHOLDERS = {
+  claymation: [
+    '🎨 输入主题，如：恐龙、海洋、太空...',
+    '🦕 告诉我你想要什么样的黏土海报吧~',
+    '✨ 想象一个有趣的黏土世界，我来帮你创造~',
+    '🌟 输入任何主题，黏土魔法就会发生！',
+    '🎭 你想看什么样的黏土世界呢？',
+  ],
+  realistic: [
+    '📸 输入主题，如：野生动物、汽车、水果...',
+    '🌍 告诉我你想要什么样的真实世界吧~',
+    '🔍 想象一个真实的场景，我来帮你拍摄~',
+    '🎬 输入任何主题，真实照片就会出现！',
+    '📷 你想看什么样的真实世界呢？',
+  ],
+  pixar: [
+    '🎬 输入人物名字，如：刘备、张飞、关羽...',
+    '🎭 告诉我你想要谁来自拍吧~',
+    '📸 想象一个欢乐的自拍场景，我来帮你创造~',
+    '🌟 输入人物名字，皮克斯魔法就会发生！',
+    '🎪 你想看谁的欢乐自拍呢？',
+  ],
+}
+
 export const THEME_SUGGESTIONS = [
   // 黏土风格 - 想象力与创意
   { emoji: '🎨', label: '黏土风格', theme: '黏土世界', style: 'claymation', category: 'creative' },
@@ -16,6 +40,12 @@ export const THEME_SUGGESTIONS = [
   { emoji: '🍎', label: '水果蔬菜', theme: '水果蔬菜', style: 'realistic', category: 'realistic' },
   { emoji: '🏠', label: '日常物品', theme: '日常物品', style: 'realistic', category: 'realistic' },
   { emoji: '🌍', label: '地球探险', theme: '地球探险', style: 'realistic', category: 'realistic' },
+  
+  // 皮克斯3D风格 - 欢乐自拍
+  { emoji: '🎬', label: '皮克斯3D', theme: '皮克斯3D自拍', style: 'pixar', category: 'pixar' },
+  { emoji: '📸', label: '三国自拍', theme: '三国英雄自拍', style: 'pixar', category: 'pixar' },
+  { emoji: '🎭', label: '历史人物', theme: '历史人物自拍', style: 'pixar', category: 'pixar' },
+  { emoji: '🌟', label: '明星合照', theme: '明星合照自拍', style: 'pixar', category: 'pixar' },
 ]
 
 export const BASE_PROMPT_TEMPLATE = `
@@ -141,4 +171,55 @@ export const REALISTIC_PROMPT_TEMPLATE = `
 【技术规格】
 Photorealistic, 8K resolution, HDR, RAW photo style, highly detailed textures (fur, metal, water, bark, skin), vivid but natural colors, optical accuracy, no distortion, deep depth of field, golden hour lighting, National Geographic photography style.
 Aspect ratio: 16:9 
+`
+
+
+export const PIXAR_PROMPT_TEMPLATE = `
+【皮克斯3D动画风格自拍场景】
+
+【全局设定】
+一张充满欢乐气息的皮克斯风格3D动画场景，主题为《{THEME_PLACEHOLDER}》。整体采用皮克斯电影级别的3D渲染风格，具有标志性的圆润角色设计、温暖柔和的光效、明亮鲜艳的色调。场景充满活力、幽默、温馨的欢乐气息，就像从皮克斯动画电影中截取的一帧精彩画面。
+
+【场景构成】
+场景环境：{ENV_ELEMENTS_PLACEHOLDER}
+背景具有皮克斯动画电影般的可爱氛围与电影级构图感，整体画面充满活力、幽默、温馨的欢乐气息。
+
+【人物组合与自拍设置】
+{CORE_OBJECTS_PLACEHOLDER}在{ENV_ELEMENTS_PLACEHOLDER}中欢乐自拍留念。
+
+主视角人物（中央位置）：
+- 站在画面中央，手持自拍杆（上面连着一部iPhone手机）
+- 表情为{DETAILED_ITEMS_PLACEHOLDER}中的主要特征
+- 呈现出领导/核心人物气质
+- 身体语言充满自信与热情
+
+左侧人物：
+- 展现出活泼、友好的动作/姿势
+- 表情为开心、兴奋的表情特征
+- 体现出配角的性格特点
+- 做出辅助性的自拍姿势
+
+右侧人物：
+- 摆出搞怪、豪迈或可爱的姿势
+- 手持代表性物品或做出夸张手势
+- 表情为欢乐、调皮的表情特征
+- 风格活泼夸张，展现出独特的性格特征
+
+【人物设计要求】
+- 所有人物穿着色彩鲜艳、圆润可爱的改良服饰
+- 角色设计遵循皮克斯风格：大眼睛、圆润脸型、友善表情
+- 所有人物表情丰富、动作生动、充满个性
+- 人物之间的互动自然、温馨、充满友谊感
+
+【光效与色彩】
+- 整体光效柔和温暖、色调明亮
+- 采用皮克斯标志性的柔和阴影和高光
+- 色彩饱和度高但不失和谐，具有电影级的色彩分级
+- 背景光线营造出温馨、欢乐的氛围
+
+【技术规格】
+Pixar 3D animation style, movie-level rendering, warm and soft lighting, bright and vibrant colors, rounded character design, expressive faces, dynamic poses, cinematic composition, 8K ultra HD, Pixar movie screenshot quality, joyful and heartwarming atmosphere.
+
+【最后修改】
+请将以上所有<人物组合>、<场景环境>、<主视角人物>、<人物A>、<人物B>等占位符替换为具体的人物名称和场景描述。
 `

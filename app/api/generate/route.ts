@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { BASE_PROMPT_TEMPLATE, REALISTIC_PROMPT_TEMPLATE } from '@/lib/constants'
+import { BASE_PROMPT_TEMPLATE, REALISTIC_PROMPT_TEMPLATE, PIXAR_PROMPT_TEMPLATE } from '@/lib/constants'
 import { BrainstormResult, StyleType } from '@/lib/types'
 import { uploadImageToR2 } from '@/lib/r2-storage'
 
@@ -10,7 +10,13 @@ const constructFullPrompt = (
   envElements: string[],
   style: StyleType = 'claymation'
 ): string => {
-  const template = style === 'realistic' ? REALISTIC_PROMPT_TEMPLATE : BASE_PROMPT_TEMPLATE
+  let template = BASE_PROMPT_TEMPLATE
+  if (style === 'realistic') {
+    template = REALISTIC_PROMPT_TEMPLATE
+  } else if (style === 'pixar') {
+    template = PIXAR_PROMPT_TEMPLATE
+  }
+  
   let prompt = template
   prompt = prompt.replace(/{THEME_PLACEHOLDER}/g, theme)
   prompt = prompt.replace('{CORE_OBJECTS_PLACEHOLDER}', coreObjects.join(', '))

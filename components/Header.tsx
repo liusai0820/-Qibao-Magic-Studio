@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs'
+import { UserMenu } from './UserMenu'
 
 export function Header() {
   return (
@@ -17,13 +18,7 @@ export function Header() {
           </SignInButton>
         </SignedOut>
         <SignedIn>
-          <UserButton 
-            appearance={{
-              elements: {
-                avatarBox: 'w-10 h-10',
-              }
-            }}
-          />
+          <UserMenu />
         </SignedIn>
       </div>
       <motion.div

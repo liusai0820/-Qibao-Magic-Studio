@@ -2,10 +2,9 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Download, Clock, Star, Eye, FileText, Zap } from 'lucide-react'
+import { Download, Clock, Star, Eye } from 'lucide-react'
 import { GeneratedImage } from '@/lib/types'
 import { PreviewModal } from './PreviewModal'
-import { downloadUpscaledImage, exportImageToPDF } from '@/lib/export'
 
 interface GalleryProps {
   images: GeneratedImage[]
@@ -14,52 +13,34 @@ interface GalleryProps {
 export function Gallery({ images }: GalleryProps) {
   const [previewImage, setPreviewImage] = useState<GeneratedImage | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
 
-  const handleDownload = async (imageUrl: string, id: string) => {
+  const handleDownload = async (imageUrl: string, id: string, theme: string) => {
     try {
-      // 如果是 base64，直接下载
-      if (imageUrl.startsWith('data:')) {
-        const link = document.createElement('a')
-        link.href = imageUrl
-        link.download = `clay-magic-${id}.png`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-        return
-      }
-
-      // 如果是 URL，先 fetch 再下载
-      const response = await fetch(imageUrl)
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
+      setDownloadingId(id)
+      console.log('开始下载:', imageUrl, '主题:', theme)
+      
+      // 确保 theme 不为空，否则使用 ID
+      const fileName = theme && theme.trim() ? theme : `qibao-${id}`
+      
+      // 使用后端代理 API 下载，传递主题作为文件名
+      const downloadUrl = `/api/download?url=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(fileName)}`
+      
       const link = document.createElement('a')
-      link.href = url
-      link.download = `clay-magic-${id}.png`
+      link.href = downloadUrl
+      link.download = `${fileName}.png`
+      link.style.display = 'none'
       document.body.appendChild(link)
       link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
+      
+      setTimeout(() => {
+        document.body.removeChild(link)
+        setDownloadingId(null)
+      }, 500)
     } catch (error) {
       console.error('下载失败:', error)
-      alert('下载失败，请重试')
-    }
-  }
-
-  const handleUpscale = async (imageUrl: string, id: string) => {
-    try {
-      await downloadUpscaledImage(imageUrl, `clay-magic-${id}-upscaled.png`, 2)
-    } catch (error) {
-      console.error('Upscale 失败:', error)
-      alert('Upscale 失败，请重试')
-    }
-  }
-
-  const handleExportPDF = async (image: GeneratedImage) => {
-    try {
-      await exportImageToPDF(image.url, `${image.theme}.pdf`, true)
-    } catch (error) {
-      console.error('PDF 导出失败:', error)
-      alert('PDF 导出失败，请重试')
+      alert('下载失败: ' + (error instanceof Error ? error.message : '未知错误'))
+      setDownloadingId(null)
     }
   }
 
@@ -68,10 +49,17 @@ export function Gallery({ images }: GalleryProps) {
     setIsPreviewOpen(true)
   }
 
+  // 处理 ESC 键关闭预览
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape' && isPreviewOpen) {
+      setIsPreviewOpen(false)
+    }
+  }
+
   if (images.length === 0) return null
 
   return (
-    <section className="w-full max-w-6xl mx-auto px-4 py-16">
+    <section className="w-full max-w-6xl mx-auto px-4 py-16" onKeyDown={handleKeyDown} tabIndex={0}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -104,17 +92,13 @@ export function Gallery({ images }: GalleryProps) {
                     className="w-full h-auto transition-transform duration-500 group-hover:scale-105"
                   />
                   
-                  {/* Clickable overlay for preview */}
-                  <button
-                    onClick={() => handlePreview(img)}
-                    className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors duration-300"
-                  />
-
                   {/* Overlay */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent 
-                                opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto">
+                                opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none group-hover:pointer-events-auto"
+                       onClick={() => handlePreview(img)}
+                       style={{ cursor: 'pointer' }}>
                     <div className="absolute bottom-0 left-0 right-0 p-4 flex flex-col gap-2">
-                      <div className="grid grid-cols-3 gap-2">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={(e) => {
@@ -132,38 +116,20 @@ export function Gallery({ images }: GalleryProps) {
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            handleDownload(img.url, img.id)
+                            const theme = img.theme || `qibao-${img.id}`
+                            handleDownload(img.url, img.id, theme)
                           }}
-                          className="px-3 py-2 bg-white/95 text-slate-700 rounded-lg font-medium text-sm hover:bg-white transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                          disabled={downloadingId === img.id}
+                          className={`px-3 py-2 rounded-lg font-medium text-sm flex items-center justify-center gap-1 cursor-pointer transition-all ${
+                            downloadingId === img.id
+                              ? 'bg-green-500 text-white'
+                              : 'bg-amber-400/95 text-white hover:bg-amber-500'
+                          }`}
                         >
                           <Download className="w-3 h-3" />
-                          保存
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            handleUpscale(img.url, img.id)
-                          }}
-                          className="px-3 py-2 bg-amber-400/95 text-white rounded-lg font-medium text-sm hover:bg-amber-500 transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                        >
-                          <Zap className="w-3 h-3" />
-                          高清
+                          {downloadingId === img.id ? '下载中...' : '下载'}
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          handleExportPDF(img)
-                        }}
-                        className="w-full px-3 py-2 bg-rose-400/95 text-white rounded-lg font-medium text-sm hover:bg-rose-500 transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        <FileText className="w-3 h-3" />
-                        导出 PDF
-                      </button>
                     </div>
                   </div>
                 </div>

@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { useUser } from '@clerk/nextjs'
 import { Header } from '@/components/Header'
 import { GeneratorForm } from '@/components/GeneratorForm'
+
 import { Gallery } from '@/components/Gallery'
 import { EmptyState } from '@/components/EmptyState'
 import { Footer } from '@/components/Footer'
@@ -105,6 +106,45 @@ export default function Home() {
     }
   }, [])
 
+  const handleAvatarMerge = useCallback(async (formData: FormData) => {
+    setError(null)
+    setAppState(AppState.BRAINSTORMING)
+
+    try {
+      setAppState(AppState.GENERATING)
+
+      const response = await fetch('/api/generate-with-avatar', {
+        method: 'POST',
+        body: formData,
+      })
+
+      let data
+      try {
+        data = await response.json()
+      } catch (e) {
+        throw new Error(`API 响应错误: ${response.status}`)
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.error || `生成失败 (${response.status})`)
+      }
+
+      const newImage: GeneratedImage = {
+        id: data.id,
+        url: data.url,
+        prompt: data.prompt,
+        theme: data.theme,
+        timestamp: data.timestamp,
+      }
+      setImages((prev) => [newImage, ...prev])
+      setAppState(AppState.SUCCESS)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || '生成失败，请稍后重试')
+      setAppState(AppState.ERROR)
+    }
+  }, [])
+
   if (!isHydrated || !isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -121,6 +161,7 @@ export default function Home() {
       <Header />
 
       <main className="flex-1">
+        {/* 生成表单 */}
         <GeneratorForm onGenerate={handleGenerate} appState={appState} />
 
         {/* Error Toast */}

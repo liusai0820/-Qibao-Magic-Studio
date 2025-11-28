@@ -19,7 +19,7 @@ const noto = Noto_Sans_SC({
 })
 
 export const metadata: Metadata = {
-  title: '奇妙黏土世界 | Clay Magic Studio',
+  title: '奇妙黏土世界 | Qibao Magic Studio',
   description: '为宝宝定制的 AI 双语认知海报生成器',
   keywords: ['AI', '黏土', '儿童教育', '双语', '海报生成'],
 }

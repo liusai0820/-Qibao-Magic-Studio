@@ -5,16 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Sparkles } from 'lucide-react'
 import { Button } from './ui/Button'
 import { LoadingBar } from './ui/LoadingBar'
-import { THEME_SUGGESTIONS } from '@/lib/constants'
+import { THEME_SUGGESTIONS, STYLE_PLACEHOLDERS } from '@/lib/constants'
 import { AppState } from '@/lib/types'
-
-const PLACEHOLDERS = [
-  '🦕 输入主题，如：恐龙、海洋、太空...',
-  '🎨 告诉我你想要什么样的黏土海报吧~',
-  '✨ 想象一个有趣的世界，我来帮你创造~',
-  '🌟 输入任何主题，魔法就会发生！',
-  '🎭 你想看什么样的黏土世界呢？',
-]
 
 interface GeneratorFormProps {
   onGenerate: (theme: string, style: string) => Promise<void>
@@ -23,18 +15,22 @@ interface GeneratorFormProps {
 
 export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
   const [theme, setTheme] = useState('')
-  const [style, setStyle] = useState<'claymation' | 'realistic'>('claymation')
+  const [style, setStyle] = useState<'claymation' | 'realistic' | 'pixar'>('claymation')
   const [progress, setProgress] = useState(0)
   const [placeholderIndex, setPlaceholderIndex] = useState(0)
   const isLoading = appState === AppState.BRAINSTORMING || appState === AppState.GENERATING
 
+  // Get current placeholders based on style
+  const currentPlaceholders = STYLE_PLACEHOLDERS[style]
+
   // Rotate placeholders
   useEffect(() => {
+    setPlaceholderIndex(0) // Reset to first placeholder when style changes
     const interval = setInterval(() => {
-      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length)
+      setPlaceholderIndex((prev) => (prev + 1) % currentPlaceholders.length)
     }, 4000)
     return () => clearInterval(interval)
-  }, [])
+  }, [style, currentPlaceholders])
 
   // Simulate progress - 2 minutes total (120 seconds)
   useEffect(() => {
@@ -81,7 +77,7 @@ export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
         className="mb-6"
       >
         <p className="text-center text-sm font-bold text-slate-500 mb-3">选择创作风格</p>
-        <div className="flex justify-center gap-4">
+        <div className="flex justify-center gap-4 flex-wrap">
           <button
             onClick={() => setStyle('claymation')}
             disabled={isLoading}
@@ -108,6 +104,19 @@ export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
             <span>写实风格</span>
             <span className="block text-xs mt-1 opacity-80">真实认知</span>
           </button>
+          <button
+            onClick={() => setStyle('pixar')}
+            disabled={isLoading}
+            className={`px-6 py-3 rounded-2xl font-bold transition-all transform ${
+              style === 'pixar'
+                ? 'bg-gradient-to-r from-purple-400 to-pink-500 text-white shadow-lg scale-105'
+                : 'bg-white text-slate-600 border-2 border-slate-200 hover:border-purple-300'
+            } disabled:opacity-50`}
+          >
+            <span className="mr-2">🎬</span>
+            <span>皮克斯3D</span>
+            <span className="block text-xs mt-1 opacity-80">欢乐自拍</span>
+          </button>
         </div>
       </motion.div>
 
@@ -118,17 +127,13 @@ export function GeneratorForm({ onGenerate, appState }: GeneratorFormProps) {
       >
         <form onSubmit={handleSubmit} className="relative flex items-center gap-2">
           <div className="flex-1 relative">
-            <motion.input
-              key={placeholderIndex}
+            <input
+              key={style}
               type="text"
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
               disabled={isLoading}
-              placeholder={PLACEHOLDERS[placeholderIndex]}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
+              placeholder={currentPlaceholders[placeholderIndex]}
               className="w-full h-14 md:h-16 pl-5 pr-4 rounded-[1.5rem] bg-amber-50/50 border-2 border-transparent 
                        focus:bg-white focus:border-amber-200 focus:ring-4 focus:ring-amber-100 
                        transition-all outline-none text-slate-700 placeholder:text-slate-400 

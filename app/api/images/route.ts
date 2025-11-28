@@ -44,13 +44,14 @@ export async function GET() {
 // POST: 保存新图片
 export async function POST(request: Request) {
   try {
-    const { userId } = await auth()
+    const authResult = await auth()
+    const { userId } = authResult
     
-    console.log('POST /api/images - userId:', userId)
+    console.log('POST /api/images - 完整认证结果:', { userId, sessionId: authResult.sessionId })
     
     if (!userId) {
-      console.error('POST /api/images - 未授权，userId 为空')
-      return NextResponse.json({ error: '未授权' }, { status: 401 })
+      console.error('POST /api/images - 未授权，userId 为空', authResult)
+      return NextResponse.json({ error: '未授权，请先登录' }, { status: 401 })
     }
 
     const body = await request.json()
