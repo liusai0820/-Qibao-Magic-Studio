@@ -1,13 +1,36 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
+import { Sparkles, BookOpen, Image } from 'lucide-react'
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs'
 import { UserMenu } from './UserMenu'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export function Header() {
+  const pathname = usePathname()
+  const isStorybook = pathname === '/storybook'
+
   return (
-    <header className="relative py-12 px-4 text-center overflow-hidden">
+    <header className="relative py-8 px-4 text-center overflow-hidden">
+      {/* 导航切换 */}
+      <div className="absolute top-4 left-4 z-10 flex gap-2">
+        <Link href="/">
+          <button className={`px-4 py-2 rounded-full font-medium shadow-md transition-all flex items-center gap-2 ${
+            !isStorybook ? 'bg-amber-400 text-white' : 'bg-white text-slate-600 hover:bg-amber-50'
+          }`}>
+            <Image className="w-4 h-4" /> 认知海报
+          </button>
+        </Link>
+        <Link href="/storybook">
+          <button className={`px-4 py-2 rounded-full font-medium shadow-md transition-all flex items-center gap-2 ${
+            isStorybook ? 'bg-amber-400 text-white' : 'bg-white text-slate-600 hover:bg-amber-50'
+          }`}>
+            <BookOpen className="w-4 h-4" /> 绘本故事
+          </button>
+        </Link>
+      </div>
+
       {/* 用户登录按钮 */}
       <div className="absolute top-4 right-4 z-10">
         <SignedOut>
@@ -51,9 +74,19 @@ export function Header() {
         transition={{ delay: 0.2 }}
         className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-wide mb-4"
       >
-        <span className="text-clay-rose">奇妙</span>
-        <span className="text-clay-amber">认知</span>
-        <span className="text-clay-sky">海报</span>
+        {isStorybook ? (
+          <>
+            <span className="text-clay-rose">奇妙</span>
+            <span className="text-clay-amber">童话</span>
+            <span className="text-clay-sky">工坊</span>
+          </>
+        ) : (
+          <>
+            <span className="text-clay-rose">奇妙</span>
+            <span className="text-clay-amber">认知</span>
+            <span className="text-clay-sky">海报</span>
+          </>
+        )}
       </motion.h1>
 
       <motion.p
@@ -64,7 +97,7 @@ export function Header() {
       >
         <span className="inline-flex items-center gap-2 bg-white/80 backdrop-blur px-5 py-2 rounded-full shadow-sm">
           <Sparkles className="w-4 h-4 text-amber-400" />
-          蒙台梭利教育 × 国家地理风格 × AI 双语认知
+          {isStorybook ? '为孩子定制专属成长绘本 × AI 智能创作' : '蒙台梭利教育 × 国家地理风格 × AI 双语认知'}
           <Sparkles className="w-4 h-4 text-amber-400" />
         </span>
       </motion.p>

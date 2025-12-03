@@ -16,6 +16,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   images    Image[]
+  stories   Story[]
 }
 
 model Image {
@@ -32,18 +33,35 @@ model Image {
   @@index([createdAt])
 }
 
-model GenerationJob {
-  id        String   @id @default(cuid())
-  userId    String
-  theme     String
-  style     String
-  status    String   @default("pending") // pending, processing, completed, failed
-  imageUrl  String?
-  error     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+model Story {
+  id         String      @id @default(cuid())
+  title      String
+  childName  String
+  age        Int
+  theme      String
+  artStyle   String
+  specificNeeds String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages      StoryPage[]
 
   @@index([userId])
-  @@index([status])
   @@index([createdAt])
+}
+
+model StoryPage {
+  id          String   @id @default(cuid())
+  pageNumber  Int
+  text        String
+  imagePrompt String
+  imageUrl    String?
+  storyId     String
+  story       Story    @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([storyId, pageNumber])
+  @@index([storyId])
 }

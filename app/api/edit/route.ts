@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     // 上传到 R2
     let publicUrl = base64Image
     try {
-      publicUrl = await uploadImageToR2(base64Image, `images/edited-${Date.now()}.png`)
+      publicUrl = await uploadImageToR2(base64Image, `images/edited/${Date.now()}.png`)
     } catch (error) {
       console.error('R2 上传失败，使用本地 base64:', error)
       // 如果 R2 上传失败，继续使用 base64

@@ -223,3 +223,192 @@ Pixar 3D animation style, movie-level rendering, warm and soft lighting, bright 
 【最后修改】
 请将以上所有<人物组合>、<场景环境>、<主视角人物>、<人物A>、<人物B>等占位符替换为具体的人物名称和场景描述。
 `
+
+
+// ==================== 绘本故事 Prompt 模板 ====================
+
+export const STORYBOOK_STORY_PROMPT = `
+你是一位享誉世界的儿童绘本作家、儿童心理学专家和蒙台梭利教育专家。你的作品曾获得凯迪克金奖，深受全球儿童和家长喜爱。
+
+请为一位 {AGE} 岁的孩子（名字叫 {CHILD_NAME}）创作一本专业的儿童绘本。
+
+【故事主题】{THEME}
+【核心教育目标】{SPECIFIC_NEEDS}
+【艺术风格】{ART_STYLE}
+【主角外观描述】{CHARACTER_DESCRIPTION}
+
+═══════════════════════════════════════════════════════════════
+                        创作原则（必须严格遵守）
+═══════════════════════════════════════════════════════════════
+
+【一、儿童发展心理学原则】
+1. 认知发展阶段适配：
+   - 2-4岁：使用简单重复句式，具象化表达，避免抽象概念
+   - 4-6岁：可引入简单因果关系，情感词汇丰富化
+   - 6-8岁：可有适度冲突和解决，引入道德思考
+
+2. 情感安全原则：
+   - 故事必须有安全的情感基调
+   - 恐惧/焦虑情节必须有温暖的化解
+   - 结局必须给予孩子希望和力量感
+
+3. 共情式叙事：
+   - 让孩子看到"和我一样"的角色
+   - 角色的情绪变化要真实可信
+   - 避免说教，让孩子自己感悟
+
+【二、蒙台梭利教育理念融入】
+1. 尊重儿童的内在发展节奏
+2. 通过故事培养独立性和自信心
+3. 融入感官体验描写（看到、听到、摸到、闻到）
+4. 鼓励探索和发现，而非被动接受
+
+【三、语言艺术要求】
+1. 韵律感：适当使用押韵、重复、排比
+2. 画面感：每句话都能在脑海中形成画面
+3. 互动性：可设计让家长和孩子互动的环节
+4. 文化适配：使用地道的中文表达，融入中国文化元素
+
+═══════════════════════════════════════════════════════════════
+                        故事结构要求
+═══════════════════════════════════════════════════════════════
+
+故事必须包含 15 页，结构如下：
+
+【第1页 - 封面】
+- 文字：简短的引子或开场白（1-2句话）
+- 插画提示词：设计一个吸引眼球的封面场景，展现故事主题和主角，像真正的儿童绘本封面
+
+【第2-3页 - 开篇】建立角色和情境，让孩子快速产生认同
+【第4-7页 - 发展】展开故事，引入挑战或问题
+【第8-11页 - 高潮】情感最强烈的部分，角色面对并克服困难
+【第12-14页 - 结局】温暖收尾，传递核心价值观，给予力量感
+
+【第15页 - 封底】
+- 文字：温馨的结束语或寄语（1-2句话）
+- 插画提示词：设计一个温馨的结束画面，主角快乐满足的场景，给人希望和力量
+
+═══════════════════════════════════════════════════════════════
+                        插画提示词要求（极其重要）
+═══════════════════════════════════════════════════════════════
+
+为每一页提供详细的英文插画提示词（imagePrompt），必须包含：
+
+1. 【角色一致性锚点】（每页必须包含，一字不差）：
+   "Based on the character sheet: {CHARACTER_SHEET}"
+
+2. 【场景描述】：具体的环境、光线、氛围
+3. 【角色动作】：清晰的肢体语言和表情
+4. 【情感基调】：画面传递的情绪
+5. 【构图建议】：视角、焦点、景深
+
+6. 【技术参数】（每页必须包含）：
+   "Style: {ART_STYLE}. High quality children's book illustration, soft lighting, warm colors, child-friendly, no text in image, professional color grading, 8K resolution."
+
+═══════════════════════════════════════════════════════════════
+
+请以 JSON 格式返回结果：
+{
+  "title": "绘本标题（要有诗意和吸引力）",
+  "characterSheet": {
+    "main": "主角的外观描述，例如：{CHILD_NAME}, a 5-year-old Chinese boy with a round face, big eyes, short black hair, wearing a blue striped t-shirt and jeans.",
+    "others": {
+      "爸爸": "A gentle-looking Chinese father in his 30s, with short black hair, wearing glasses and a light blue polo shirt.",
+      "妈妈": "A kind Chinese mother in her 30s, with shoulder-length hair, wearing a yellow dress.",
+      "小狗": "A fluffy, small white puppy with a red collar."
+    }
+  },
+  "pages": [
+    {
+      "pageNumber": 1,
+      "text": "故事文字（优美、有韵律感）",
+      "imagePrompt": "详细的英文插画提示词（必须包含角色锚点）"
+    }
+  ]
+}
+`
+
+export const STORYBOOK_IMAGE_PROMPT = `
+【绘本插画生成 - 专业级提示词】
+
+═══════════════════════════════════════════════════════════════
+                        核心要求
+═══════════════════════════════════════════════════════════════
+
+【角色一致性（最高优先级）】
+{CHARACTER_SHEET}
+
+【本页场景】
+{PAGE_PROMPT}
+
+═══════════════════════════════════════════════════════════════
+                        画面质量要求
+═══════════════════════════════════════════════════════════════
+
+【艺术风格】
+{ART_STYLE}
+
+【技术规格】
+- Aspect Ratio: MUST be 1:1 square format
+- Resolution: 8K Ultra HD
+- Lighting: Soft, warm, volumetric lighting with gentle shadows
+- Color palette: Rich but harmonious, child-friendly colors
+- Composition: Professional children's book illustration, centered square composition
+- Focus: Sharp focus on main character, appropriate depth of field
+- Mood: Warm, inviting, emotionally resonant
+
+【绝对禁止】
+- NO text, letters, words, or watermarks in the image
+- NO scary, violent, or inappropriate content
+- NO distorted faces or body proportions
+- NO extra limbs or anatomical errors
+- NO dark or frightening atmospheres
+
+【必须保证】
+- Character consistency across all pages (same face, hair, clothing)
+- Age-appropriate, wholesome imagery
+- Clear storytelling through visual narrative
+- Professional illustration quality
+- Emotionally engaging scenes
+
+═══════════════════════════════════════════════════════════════
+`
+
+export const CHARACTER_DESCRIPTION_EXAMPLES = [
+  '一个5岁的中国小男孩，圆圆的脸蛋，大大的眼睛，短短的黑发，穿着蓝色条纹T恤和牛仔裤',
+  '一个4岁的中国小女孩，扎着两个小辫子，圆脸大眼睛，穿着粉色连衣裙',
+  '一个6岁的小男孩，戴着圆框眼镜，头发微卷，穿着绿色卫衣',
+]
+
+export const STORYBOOK_ART_STYLES = [
+  { 
+    value: 'Eric Carle collage style, textured painted tissue paper, bold colors, white clean background, artistic, handcrafted feel, layered paper textures', 
+    label: '艾瑞·卡尔拼贴画风格',
+    description: '《好饿的毛毛虫》风格，色彩鲜艳的拼贴画'
+  },
+  { 
+    value: 'Soft watercolor style, Beatrix Potter inspiration, dreamy atmosphere, gentle pastel colors, delicate brushstrokes, nostalgic feel, English countryside aesthetic', 
+    label: '温馨水彩风格',
+    description: '《彼得兔》风格，柔和温馨的水彩画'
+  },
+  { 
+    value: 'Hayao Miyazaki style, Studio Ghibli aesthetic, lush detailed backgrounds, vibrant saturated colors, anime inspired, magical realism, whimsical atmosphere', 
+    label: '宫崎骏动画风格',
+    description: '吉卜力工作室风格，治愈系动画'
+  },
+  { 
+    value: '3D Pixar style, cute rounded characters, bright cheerful lighting, high detail render, expressive faces, warm color palette, cinematic quality', 
+    label: '3D 皮克斯动画风格',
+    description: '现代3D动画风格，角色可爱生动'
+  },
+  { 
+    value: 'Soft clay animation style, claymation aesthetic, rounded shapes, tactile textures, warm lighting, handcrafted feel, stop-motion quality', 
+    label: '黏土动画风格',
+    description: '温暖的黏土质感，触感十足'
+  },
+  { 
+    value: 'Traditional Chinese ink painting style, shuimo, minimalist elegant strokes, subtle color washes, poetic atmosphere, cultural heritage', 
+    label: '中国水墨画风格',
+    description: '传统水墨意境，诗意盎然'
+  },
+]

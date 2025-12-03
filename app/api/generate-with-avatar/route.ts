@@ -154,7 +154,7 @@ export async function POST(request: NextRequest) {
     try {
       publicUrl = await uploadImageToR2(
         base64Image,
-        `avatar-merge/${Date.now()}-${userId}.png`
+        `images/${userId}/avatar-merge/${Date.now()}.png`
       )
     } catch (error) {
       console.error('R2 上传失败，使用本地 base64:', error)

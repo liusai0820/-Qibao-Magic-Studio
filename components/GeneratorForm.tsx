@@ -68,8 +68,8 @@ export function GeneratorForm({ onGenerate, appState, onJobCreated }: GeneratorF
     if (!theme.trim() || isLoading) return
     
     try {
-      // 调用新的生成 API
-      const response = await fetch('/api/generate', {
+      // 使用直接生成API（Vercel Free计划）
+      const response = await fetch('/api/generate/direct', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ theme, style }),
@@ -78,12 +78,13 @@ export function GeneratorForm({ onGenerate, appState, onJobCreated }: GeneratorF
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data?.error || '创建任务失败')
+        throw new Error(data?.error || '生成失败')
       }
 
-      // 保存 jobId 用于轮询
-      setJobId(data.jobId)
-      onJobCreated?.(data.jobId)
+      // 直接返回结果，无需轮询
+      if (data.success) {
+        onJobCreated?.(data.id)
+      }
       setTheme('')
     } catch (error: any) {
       console.error('提交失败:', error)

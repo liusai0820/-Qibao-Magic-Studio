@@ -45,7 +45,8 @@ export default function Home() {
 
   const pollJobStatus = useCallback(async (jobId: string) => {
     let attempts = 0
-    const maxAttempts = 120 // 最多轮询 2 分钟（每 1 秒轮询一次）
+    const maxAttempts = 300 // 最多轮询 5 分钟（每 1 秒轮询一次）
+    let pollInterval = 1000 // 初始轮询间隔 1 秒
 
     const poll = async () => {
       try {
@@ -56,7 +57,7 @@ export default function Home() {
           throw new Error(data?.error || '查询失败')
         }
 
-        console.log('任务状态:', data.status)
+        console.log('任务状态:', data.status, '尝试次数:', attempts)
 
         if (data.status === 'completed') {
           // 任务完成，添加到图片列表
@@ -77,9 +78,16 @@ export default function Home() {
         // 继续轮询
         attempts++
         if (attempts < maxAttempts) {
-          setTimeout(poll, 1000) // 每 1 秒轮询一次
+          // 逐步增加轮询间隔，避免过度请求
+          if (attempts > 60) {
+            pollInterval = 2000 // 1分钟后，每2秒轮询一次
+          }
+          if (attempts > 120) {
+            pollInterval = 3000 // 2分钟后，每3秒轮询一次
+          }
+          setTimeout(poll, pollInterval)
         } else {
-          throw new Error('任务超时')
+          throw new Error('任务超时（5分钟）。请检查网络连接或稍后重试。')
         }
       } catch (err: any) {
         console.error('轮询失败:', err)
@@ -92,10 +100,23 @@ export default function Home() {
     poll()
   }, [])
 
-  const handleJobCreated = useCallback((jobId: string) => {
-    console.log('任务已创建:', jobId)
-    pollJobStatus(jobId)
-  }, [pollJobStatus])
+  const handleJobCreated = useCallback((imageId: string) => {
+    console.log('图片已生成:', imageId)
+    // 直接生成API已返回结果，重新加载图片列表
+    setTimeout(() => {
+      fetch('/api/images')
+        .then(res => res.json())
+        .then(data => {
+          setImages(data.images || [])
+          setAppState(AppState.SUCCESS)
+        })
+        .catch(err => {
+          console.error('加载图片失败:', err)
+          setError('加载图片失败，请刷新页面')
+          setAppState(AppState.ERROR)
+        })
+    }, 500)
+  }, [])
 
   const handleAvatarMerge = useCallback(async (formData: FormData) => {
     setError(null)
@@ -153,7 +174,7 @@ export default function Home() {
 
       <main className="flex-1">
         {/* 生成表单 */}
-        <GeneratorForm onGenerate={handleGenerate} appState={appState} onJobCreated={handleJobCreated} />
+        <GeneratorForm onGenerate={async () => {}} appState={appState} onJobCreated={handleJobCreated} />
 
         {/* Error Toast */}
         <AnimatePresence>

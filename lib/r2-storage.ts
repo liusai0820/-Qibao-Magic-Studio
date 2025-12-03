@@ -16,6 +16,11 @@ const PUBLIC_DOMAIN = process.env.NEXT_PUBLIC_R2_DOMAIN || ''
 
 /**
  * 上传 base64 图片到 R2
+ * 
+ * 最佳实践的文件夹结构：
+ * - images/{userId}/{timestamp}-{theme}.png  (认知海报)
+ * - storybook/{userId}/{storyId}/page-{n}.png  (绘本页面)
+ * - storybook/{userId}/references/{filename}  (参考图)
  */
 export async function uploadImageToR2(
   base64Data: string,
@@ -26,8 +31,8 @@ export async function uploadImageToR2(
     const imageData = base64Data.replace(/^data:image\/\w+;base64,/, '')
     const buffer = Buffer.from(imageData, 'base64')
 
-    // 生成文件名
-    const key = filename || `images/${uuidv4()}.png`
+    // 生成文件名（如果没有提供，使用默认结构）
+    const key = filename || `images/temp/${uuidv4()}.png`
 
     // 上传到 R2
     await s3Client.send(
